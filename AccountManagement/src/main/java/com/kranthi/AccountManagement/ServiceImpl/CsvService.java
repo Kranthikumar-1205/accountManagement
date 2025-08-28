@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,9 +17,11 @@ import com.kranthi.AccountManagement.Repo.UserRepo;
 public class CsvService {
 	
 	private UserRepo repo;
+	private PasswordEncoder passwordEncoder;
 	
-	public CsvService(UserRepo repo) {
+	public CsvService(UserRepo repo, PasswordEncoder passwordEncoder) {
 		this.repo = repo;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	public String importCsv(MultipartFile file) {
@@ -57,7 +60,7 @@ public class CsvService {
                 Users user = new Users();
                 user.setName(data[0].trim());
                 user.setEmail(email);
-                user.setPassword(data[2].trim());
+                user.setPassword(passwordEncoder.encode(data[2].trim()));
                 user.setAccountNumber(accountNumber);
                 user.setPhoneNumber(phoneNumber);
                 user.setGender(data[5].trim());

@@ -3,7 +3,7 @@ package com.kranthi.AccountManagement.ServiceImpl;
 
 import java.util.List;
 
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.kranthi.AccountManagement.Exceptions.DuplicateDataException;
 import com.kranthi.AccountManagement.Exceptions.ResourceNotFoundException;
@@ -16,10 +16,12 @@ import com.kranthi.AccountManagement.Service.UserService;
 public class UserServiceImpl implements UserService{
 	
 	private UserRepo repo;
+	private PasswordEncoder passwordEncoder;
 	
 	
-	public UserServiceImpl(UserRepo repo) {
+	public UserServiceImpl(UserRepo repo, PasswordEncoder passwordEncoder) {
 		this.repo = repo;
+		this.passwordEncoder = passwordEncoder;
 	}
 	
 	
@@ -35,7 +37,8 @@ public class UserServiceImpl implements UserService{
 	    if (repo.findByPhoneNumber(user.getPhoneNumber()).isPresent()) {
 	        throw new DuplicateDataException("Phone number already exists: " + user.getPhoneNumber());
 	    }
-
+	    
+	    user.setPassword(passwordEncoder.encode(user.getPassword()));
 		return repo.save(user);
 	}
 
@@ -60,7 +63,7 @@ public class UserServiceImpl implements UserService{
                 .ifPresent(u -> { throw new DuplicateDataException("Email already exists: " + user.getEmail()); });
             existing.setEmail(user.getEmail()); 
         }
-	    if (user.getPassword() != null) existing.setPassword(user.getPassword());
+	    if (user.getPassword() != null) existing.setPassword(passwordEncoder.encode(user.getPassword()));
 	    if (user.getAccountNumber() != null && !existing.getAccountNumber().equals(user.getAccountNumber())) {
             repo.findByAccountNumber(user.getAccountNumber())
                 .filter(u -> !u.getId().equals(id))
