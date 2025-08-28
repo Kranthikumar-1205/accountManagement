@@ -3,22 +3,26 @@ package com.kranthi.AccountManagement.ServiceImpl;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
 
+import org.springframework.stereotype.Service;
 import com.kranthi.AccountManagement.Exceptions.DuplicateDataException;
 import com.kranthi.AccountManagement.Exceptions.ResourceNotFoundException;
 import com.kranthi.AccountManagement.Model.Users;
 import com.kranthi.AccountManagement.Repo.UserRepo;
 import com.kranthi.AccountManagement.Service.UserService;
 
+
 @Service
 public class UserServiceImpl implements UserService{
 	
 	private UserRepo repo;
 	
+	
 	public UserServiceImpl(UserRepo repo) {
 		this.repo = repo;
 	}
+	
+	
 
 	@Override
 	public Users createUsers(Users user) {
@@ -31,6 +35,7 @@ public class UserServiceImpl implements UserService{
 	    if (repo.findByPhoneNumber(user.getPhoneNumber()).isPresent()) {
 	        throw new DuplicateDataException("Phone number already exists: " + user.getPhoneNumber());
 	    }
+
 		return repo.save(user);
 	}
 
@@ -49,10 +54,25 @@ public class UserServiceImpl implements UserService{
 		Users existing = getUserById(id);
 		
 		if (user.getName() != null) existing.setName(user.getName());
-	    if (user.getEmail() != null) existing.setEmail(user.getEmail());
+		if (user.getEmail() != null && !existing.getEmail().equals(user.getEmail())) {
+            repo.findByEmail(user.getEmail())
+                .filter(u -> !u.getId().equals(id))
+                .ifPresent(u -> { throw new DuplicateDataException("Email already exists: " + user.getEmail()); });
+            existing.setEmail(user.getEmail()); 
+        }
 	    if (user.getPassword() != null) existing.setPassword(user.getPassword());
-	    if (user.getAccountNumber() != null) existing.setAccountNumber(user.getAccountNumber());	    
-	    if (user.getPhoneNumber() != null) existing.setPhoneNumber(user.getPhoneNumber());	    
+	    if (user.getAccountNumber() != null && !existing.getAccountNumber().equals(user.getAccountNumber())) {
+            repo.findByAccountNumber(user.getAccountNumber())
+                .filter(u -> !u.getId().equals(id))
+                .ifPresent(u -> { throw new DuplicateDataException("Account number already exists: " + user.getAccountNumber()); });
+            existing.setAccountNumber(user.getAccountNumber());
+        }	    
+	    if (user.getPhoneNumber() != null && !existing.getPhoneNumber().equals(user.getPhoneNumber())) {
+            repo.findByPhoneNumber(user.getPhoneNumber())
+                .filter(u -> !u.getId().equals(id))
+                .ifPresent(u -> { throw new DuplicateDataException("Phone number already exists: " + user.getPhoneNumber()); });
+            existing.setPhoneNumber(user.getPhoneNumber());
+        }	    
 	    if (user.getGender() != null) existing.setGender(user.getGender());
 	    if (user.getAddress() != null) existing.setAddress(user.getAddress());
         return repo.save(existing);

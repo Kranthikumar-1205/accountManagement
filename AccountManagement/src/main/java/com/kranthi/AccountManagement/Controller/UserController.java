@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class UserController {
 	
 	private UserService service;
@@ -28,27 +28,27 @@ public class UserController {
 		this.service = service;
 	}
 	
-	@PostMapping
+	@PostMapping("/users")
 	public ResponseEntity<Users> createUsers(@Valid @RequestBody Users user){
 		return ResponseEntity.status(201).body(service.createUsers(user));
 	}
 	
-	@GetMapping
+	@GetMapping("/users")
 	public List<Users> getAllUsers(){
 		return service.getAllUsers();
 	}
 	
-	@GetMapping("/{id}")
+	@GetMapping("users/{id}")
 	public Users getUserById(@PathVariable Long id) {
 		return service.getUserById(id);
 	}
 	
-	@PutMapping("/{id}")
-	public Users updateUser(@PathVariable Long id, @RequestBody Users user) {
+	@PutMapping("users/{id}")
+	public Users updateUser(@PathVariable Long id, @Valid @RequestBody Users user) {
 		return service.updateUser(id, user);
 	}
 	
-	@DeleteMapping("/{id}")
+	@DeleteMapping("users/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Long id){
 		service.deleteUser(id);
 		return ResponseEntity.noContent().build();

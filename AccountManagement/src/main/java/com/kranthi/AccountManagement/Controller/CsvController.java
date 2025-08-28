@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.kranthi.AccountManagement.ServiceImpl.CsvService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class CsvController {
 	
 	private CsvService csvService;
@@ -19,8 +19,9 @@ public class CsvController {
 		this.csvService = csvService;
 	}
 	
-	@PostMapping("/import-csv")
+	@PostMapping("users/import-csv")
 	public ResponseEntity<String> importCsv(@RequestParam("file") MultipartFile file){
+//		System.out.println("Received file: " + file.getOriginalFilename());
 		String result = csvService.importCsv(file);
 		return ResponseEntity.ok(result);
 	}
